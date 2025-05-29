@@ -28,11 +28,16 @@ run(Tasks) ->
         lists:delete(Task, Tasks);
       {Pid, {complete, Task}} ->
         Pid ! {completed, Task},
-        Completed = "Check " ++ Task,
-        UpdatedTasks = lists:delete(Task, Tasks),
-        [Completed | UpdatedTasks];
+        TaskIsCompleted = lists:prefix("Check", Task),
+        if TaskIsCompleted == true ->
+          Tasks;
+        true ->
+          Completed = "Check " ++ Task,
+          UpdatedTasks = lists:delete(Task, Tasks),
+          [Completed | UpdatedTasks]
+        end;
       {Pid, {list_completed}} ->
-        CompletedTasks = lists:filter(fun(Task) -> string:prefix(Task, "Check ") end, Tasks),
+        CompletedTasks = lists:filter(fun(Task) -> lists:prefix("Check", Task) end, Tasks),
         Pid ! {completed, CompletedTasks},
         Tasks;
       {Pid, {list_next}} ->
