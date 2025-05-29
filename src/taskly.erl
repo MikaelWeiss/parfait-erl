@@ -1,9 +1,9 @@
 %%%-------------------------------------------------------------------
-%% @doc Main module for Strive application.
+%% @doc Main module for Taskly application.
 %% @end
 %%%-------------------------------------------------------------------
 
--module(strive).
+-module(taskly).
 
 -export([start/0, rpc/2, run/1]).
 
@@ -47,8 +47,40 @@ run(Tasks) ->
         SortedTasks = lists:sort(Tasks),
         Pid ! {all, SortedTasks},
         SortedTasks;
+      {Pid, {save}} ->
+        Pid ! {saved, Tasks},
+        save_to_file(Tasks),
+        Tasks;
+      {Pid, {load}} ->
+        LoadedTasks = load_from_file(),
+        Pid ! {loaded, LoadedTasks},
+        LoadedTasks;
       {Pid, _} ->
         Pid ! {error, "Invalid request"},
         Tasks
     end,
   run(NewTasks).
+
+save_to_file(Tasks) ->
+  file:write_file("tasks.txt", lists:join("\n", Tasks)).
+
+load_from_file() ->
+  case file:open("tasks.txt", [read]) of
+    {ok, Device} ->
+      Lines = read_all_lines(Device, []),
+      file:close(Device),
+      Lines;
+    {error, enoent} ->
+      []
+  end.
+
+read_all_lines(Device, Acc) ->
+  case file:read_line(Device) of
+      {ok, Line} ->
+        CleanLine = string:trim(Line),
+        read_all_lines(Device, [CleanLine | Acc]);
+        eof ->
+          lists:reverse(Acc);
+      {error, Reason} ->
+          {error, Reason}
+  end.
