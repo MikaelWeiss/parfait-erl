@@ -1,0 +1,42 @@
+//
+// Example.parfait
+//
+
+model User
+    id: uuid
+    name: string queryable
+    email: string
+    profileType: ProfileType queryable
+    creationDate: datetime = 'now'
+    anotherDate: datetime default('2024-06-20 09:03')
+    anOptionalValue: string?
+    notes: [string] { default = [], queryable = true }
+    friends: [Friend]
+    posts: $[Post]
+
+model Friend
+    (friends, 2): User
+    friendDate: datetime
+
+enum ProfileType
+    personal
+    business
+
+model Post
+    user: $User
+    comments: [Comment]
+    title: string
+    content: string
+    photos: [data]
+
+model Comment
+    id: uuid
+    post: Post
+    user: User
+
+database.Posts.filter(p => p.text.contains("text")).filter(sdifasbf)
+
+let yeet = new Query<(Post, User)>();
+
+List<(Posts, User, (Comment, User))> yeet = database.fetch()
+
