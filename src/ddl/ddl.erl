@@ -6,12 +6,13 @@
 -module(ddl).
 
 -export([create_database/1]).
+
 create_database(FilePath) ->
     case file:open(FilePath, [read]) of
         {ok, Device} ->
           Lines = read_all_lines(Device, []),
           file:close(Device),
-          print_lines(Lines),
+          parse_lines(Lines),
           {ok, Lines};
         {error, Reason} ->
             {error, Reason}
@@ -37,7 +38,24 @@ read_all_lines(Device, Acc) ->
           {error, Reason}
   end.
 
-print_lines(Lines) ->
+parse_lines(Lines) ->
   lists:foreach(fun(Line) ->
-      io:format("Line: ~p~n", [Line])
+      parse_line(Line, {start})
   end, Lines).
+
+parse_line(Line, State) ->
+  Words = string:split(Line, " "),
+  parse_words(Words, State).
+
+parse_words(Words, State) ->
+  case Words of
+    [] ->
+      State;
+    [First | Rest] ->
+      case First of
+        "model" ->
+          parse_words(Rest, {model});
+        _ ->
+          parse_words(Rest, State)
+      end
+  end.
