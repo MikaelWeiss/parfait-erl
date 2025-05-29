@@ -1,5 +1,7 @@
 %%%-------------------------------------------------------------------
 %% @doc DDL module for database schema operations.
+%% I started with a simple parser for a Database Definition Language (DDL) file.
+%% I ended up deciding it was more complicated than I needed it to be right now.
 %% @end
 %%%-------------------------------------------------------------------
 
